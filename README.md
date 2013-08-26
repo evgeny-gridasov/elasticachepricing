@@ -3,9 +3,8 @@ elasticachepricing.py
 
 Written by Evgeny Gridasov     
 
-http://itoc.com.au
-
-http://cloudedify.com
+http://egreex.com
+https://awsreport.egreex.com
 
 
 elasticachepricing.py is a quick & dirty library and a command line interface (CLI)
