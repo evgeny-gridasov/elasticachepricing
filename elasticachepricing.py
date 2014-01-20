@@ -71,10 +71,10 @@ JSON_NAME_TO_ELC_REGIONS_API = {
 	"sa-east-1" : "sa-east-1"
 }
 
-INSTANCES_ON_DEMAND_URL="http://aws.amazon.com/elasticache/pricing/pricing-standard-deployments.json"
-INSTANCES_RESERVED_LIGHT_UTILIZATION_URL="http://aws.amazon.com/elasticache/pricing/pricing-elasticache-light-standard-deployments.json"
-INSTANCES_RESERVED_MEDIUM_UTILIZATION_URL="http://aws.amazon.com/elasticache/pricing/pricing-elasticache-medium-standard-deployments.json"
-INSTANCES_RESERVED_HEAVY_UTILIZATION_URL="http://aws.amazon.com/elasticache/pricing/pricing-elasticache-heavy-standard-deployments.json"
+INSTANCES_ON_DEMAND_URL="http://aws-assets-pricing-prod.s3.amazonaws.com/pricing/elasticache/pricing-standard-deployments-elasticache.js"
+INSTANCES_RESERVED_LIGHT_UTILIZATION_URL="http://aws-assets-pricing-prod.s3.amazonaws.com/pricing/elasticache/pricing-elasticache-light-standard-deployments-elasticache.js"
+INSTANCES_RESERVED_MEDIUM_UTILIZATION_URL="http://aws-assets-pricing-prod.s3.amazonaws.com/pricing/elasticache/pricing-elasticache-medium-standard-deployments.js"
+INSTANCES_RESERVED_HEAVY_UTILIZATION_URL="http://aws-assets-pricing-prod.s3.amazonaws.com/pricing/elasticache/pricing-elasticache-heavy-standard-deployments.js"
 
 INSTANCES_RESERVED_UTILIZATION_TYPE_BY_URL = {
 	INSTANCES_RESERVED_LIGHT_UTILIZATION_URL : "light",
@@ -86,16 +86,16 @@ DEFAULT_CURRENCY = "USD"
 
 INSTANCE_TYPE_MAPPING = {
 	"microInstClass.microInst": "cache.t1.micro",
-	"dbInstClass.smDBInst" : "cache.m1.small",
-	"dbInstClass.medInst" : "cache.m1.medium",
-	"dbInstClass.lgDBInst" : "cache.m1.large",
-	"dbInstClass.xlDBInst" : "cache.m1.xlarge",
-	"hiMemDBInstClass.xlDBInst" : "cache.m2.xlarge",
-	"hiMemDBInstClass.xxlDBInst" : "cache.m2.2xlarge",
-	"hiMemDBInstClass.xxxxDBInst" : "cache.m2.4xlarge",
+	"sCacheNode.sm" : "cache.m1.small",
+	"sCacheNode.medInst" : "cache.m1.medium",
+	"sCacheNode.lg" : "cache.m1.large",
+	"sCacheNode.xl" : "cache.m1.xlarge",
+	"hiMemCacheClass.xl" : "cache.m2.xlarge",
+	"hiMemCacheClass.xxl" : "cache.m2.2xlarge",
+	"hiMemCacheClass.xxxxl" : "cache.m2.4xlarge",
 	"hiCPUDBInstClass.hiCPUxlDBInst" : "cache.c1.xlarge",
-	"enInstClass.xlDBInst" : "cache.m3.xlarge",
-	"enInstClass.xxlDBInst" : "cache.m3.2xlarge",
+	"enInstClass2.xl" : "cache.m3.xlarge",
+	"enInstClass2.xxl" : "cache.m3.2xlarge",
 	
 	#Reserved
 	"stdDeployRes.mic" : "cache.t1.micro",
@@ -112,8 +112,11 @@ INSTANCE_TYPE_MAPPING = {
 }
 
 def _load_data(url):
-	f = urllib2.urlopen(url)
-	return json.loads(f.read())
+	f = urllib2.urlopen(url).read()
+	def callback(json):
+		return json
+	data = eval(f, {"__builtins__" : None}, {"callback" : callback} )
+	return data
 
 def get_elc_reserved_instances_prices(filter_region=None, filter_instance_type=None):
 	""" Get Elasticache reserved instances prices. Results can be filtered by region """
