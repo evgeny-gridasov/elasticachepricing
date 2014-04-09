@@ -71,10 +71,10 @@ JSON_NAME_TO_ELC_REGIONS_API = {
 	"sa-east-1" : "sa-east-1"
 }
 
-INSTANCES_ON_DEMAND_URL="http://aws-assets-pricing-prod.s3.amazonaws.com/pricing/elasticache/pricing-standard-deployments-elasticache.js"
-INSTANCES_RESERVED_LIGHT_UTILIZATION_URL="http://aws-assets-pricing-prod.s3.amazonaws.com/pricing/elasticache/pricing-elasticache-light-standard-deployments-elasticache.js"
-INSTANCES_RESERVED_MEDIUM_UTILIZATION_URL="http://aws-assets-pricing-prod.s3.amazonaws.com/pricing/elasticache/pricing-elasticache-medium-standard-deployments.js"
-INSTANCES_RESERVED_HEAVY_UTILIZATION_URL="http://aws-assets-pricing-prod.s3.amazonaws.com/pricing/elasticache/pricing-elasticache-heavy-standard-deployments.js"
+INSTANCES_ON_DEMAND_URL="http://a0.awsstatic.com/pricing/1/elasticache/pricing-standard-deployments-elasticache.min.js"
+INSTANCES_RESERVED_LIGHT_UTILIZATION_URL="http://a0.awsstatic.com/pricing/1/elasticache/pricing-elasticache-light-standard-deployments-elasticache.min.js"
+INSTANCES_RESERVED_MEDIUM_UTILIZATION_URL="http://a0.awsstatic.com/pricing/1/elasticache/pricing-elasticache-medium-standard-deployments.min.js"
+INSTANCES_RESERVED_HEAVY_UTILIZATION_URL="http://a0.awsstatic.com/pricing/1/elasticache/pricing-elasticache-heavy-standard-deployments.min.js"
 
 INSTANCES_RESERVED_UTILIZATION_TYPE_BY_URL = {
 	INSTANCES_RESERVED_LIGHT_UTILIZATION_URL : "light",
@@ -113,6 +113,9 @@ INSTANCE_TYPE_MAPPING = {
 
 def _load_data(url):
 	f = urllib2.urlopen(url).read()
+	f = re.sub("/\\*[^\x00]+\\*/", "", f, 0, re.M)
+	f = re.sub("([a-zA-Z0-9]+):", "\"\\1\":", f)
+	f = re.sub(";", "\n", f)
 	def callback(json):
 		return json
 	data = eval(f, {"__builtins__" : None}, {"callback" : callback} )
