@@ -50,8 +50,15 @@ ELC_INSTANCE_TYPES = [
 	"cache.m2.2xlarge",
 	"cache.m2.4xlarge",
 	"cache.c1.xlarge",
+	"cache.m3.medium",
+	"cache.m3.large",
 	"cache.m3.xlarge",
-	"cache.m3.2xlarge"
+	"cache.m3.2xlarge",
+	"cache.r3.large",
+	"cache.r3.xlarge",
+	"cache.r3.2xlarge",
+	"cache.r3.4xlarge",
+	"cache.r3.8xlarge"
 ]
 
 JSON_NAME_TO_ELC_REGIONS_API = {
@@ -72,44 +79,29 @@ JSON_NAME_TO_ELC_REGIONS_API = {
 }
 
 INSTANCES_ON_DEMAND_URL="http://a0.awsstatic.com/pricing/1/elasticache/pricing-standard-deployments-elasticache.min.js"
+INSTANCES_OLD_ON_DEMAND_URL="http://a0.awsstatic.com/pricing/1/elasticache/previous-generation/pricing-standard-deployments-elasticache.min.js"
+
 INSTANCES_RESERVED_LIGHT_UTILIZATION_URL="http://a0.awsstatic.com/pricing/1/elasticache/pricing-elasticache-light-standard-deployments-elasticache.min.js"
 INSTANCES_RESERVED_MEDIUM_UTILIZATION_URL="http://a0.awsstatic.com/pricing/1/elasticache/pricing-elasticache-medium-standard-deployments.min.js"
 INSTANCES_RESERVED_HEAVY_UTILIZATION_URL="http://a0.awsstatic.com/pricing/1/elasticache/pricing-elasticache-heavy-standard-deployments.min.js"
+
+INSTANCES_OLD_RESERVED_LIGHT_UTILIZATION_URL="http://a0.awsstatic.com/pricing/1/elasticache/previous-generation/pricing-elasticache-light-standard-deployments.min.js"
+INSTANCES_OLD_RESERVED_MEDIUM_UTILIZATION_URL="http://a0.awsstatic.com/pricing/1/elasticache/previous-generation/pricing-elasticache-medium-standard-deployments.min.js"
+INSTANCES_OLD_RESERVED_HEAVY_UTILIZATION_URL="http://a0.awsstatic.com/pricing/1/elasticache/previous-generation/pricing-elasticache-heavy-standard-deployments.min.js"
 
 INSTANCES_RESERVED_UTILIZATION_TYPE_BY_URL = {
 	INSTANCES_RESERVED_LIGHT_UTILIZATION_URL : "light",
 	INSTANCES_RESERVED_MEDIUM_UTILIZATION_URL : "medium",
 	INSTANCES_RESERVED_HEAVY_UTILIZATION_URL : "heavy",
+	
+	INSTANCES_OLD_RESERVED_LIGHT_UTILIZATION_URL : "light",
+	INSTANCES_OLD_RESERVED_MEDIUM_UTILIZATION_URL : "medium",
+	INSTANCES_OLD_RESERVED_HEAVY_UTILIZATION_URL : "heavy"
+
 }
 
 DEFAULT_CURRENCY = "USD"
 
-INSTANCE_TYPE_MAPPING = {
-	"microInstClass.microInst": "cache.t1.micro",
-	"sCacheNode.sm" : "cache.m1.small",
-	"sCacheNode.medInst" : "cache.m1.medium",
-	"sCacheNode.lg" : "cache.m1.large",
-	"sCacheNode.xl" : "cache.m1.xlarge",
-	"hiMemCacheClass.xl" : "cache.m2.xlarge",
-	"hiMemCacheClass.xxl" : "cache.m2.2xlarge",
-	"hiMemCacheClass.xxxxl" : "cache.m2.4xlarge",
-	"hiCPUDBInstClass.hiCPUxlDBInst" : "cache.c1.xlarge",
-	"enInstClass2.xl" : "cache.m3.xlarge",
-	"enInstClass2.xxl" : "cache.m3.2xlarge",
-	
-	#Reserved
-	"stdDeployRes.mic" : "cache.t1.micro",
-	"stdDeployRes.sm" : "cache.m1.small",
-	"stdDeployRes.medInst" : "cache.m1.medium",
-	"stdDeployRes.lg" : "cache.m1.large",
-	"stdDeployRes.xl" : "cache.m1.xlarge",
-	"stdDeployRes.xlHiMem" : "cache.m2.xlarge",
-	"stdDeployRes.xxlHiMem" : "cache.m2.2xlarge",
-	"stdDeployRes.xxxxlHiMem" : "cache.m2.4xlarge",
-	"stdDeployRes.xlHiCPU" : "cache.c1.xlarge",
-	"stdDeployRes.xlEn" : "cache.m3.xlarge",
-	"stdDeployRes.xxlEn" : "cache.m3.2xlarge",
-}
 
 def _load_data(url):
 	f = urllib2.urlopen(url).read()
@@ -132,7 +124,11 @@ def get_elc_reserved_instances_prices(filter_region=None, filter_instance_type=N
 	urls = [
 		INSTANCES_RESERVED_LIGHT_UTILIZATION_URL,
 		INSTANCES_RESERVED_MEDIUM_UTILIZATION_URL,
-		INSTANCES_RESERVED_HEAVY_UTILIZATION_URL
+		INSTANCES_RESERVED_HEAVY_UTILIZATION_URL,
+		
+		INSTANCES_OLD_RESERVED_LIGHT_UTILIZATION_URL,
+		INSTANCES_OLD_RESERVED_MEDIUM_UTILIZATION_URL,
+		INSTANCES_OLD_RESERVED_HEAVY_UTILIZATION_URL
 	]
 
 	result_regions = []
@@ -166,10 +162,12 @@ def get_elc_reserved_instances_prices(filter_region=None, filter_instance_type=N
 						
 					if "instanceTypes" in r:
 						for it in r["instanceTypes"]:
-							instance_class = it["type"]
 							if "tiers" in it:
-								for s in it["tiers"]:
-									_type = INSTANCE_TYPE_MAPPING[instance_class + "." + s["size"] ]
+								for s in it["tiers"]:									
+									_type = s["size"]
+									
+									if not _type.startswith("cache."):
+										continue
 	
 									if get_specific_instance_type and _type != filter_instance_type:
 										continue
@@ -217,6 +215,11 @@ def get_elc_ondemand_instances_prices(filter_region=None, filter_instance_type=N
 
 	currency = DEFAULT_CURRENCY
 
+	urls = [
+		INSTANCES_ON_DEMAND_URL,
+		INSTANCES_OLD_ON_DEMAND_URL
+	]
+
 	result_regions = []
 	result = {
 		"config" : {
@@ -226,43 +229,41 @@ def get_elc_ondemand_instances_prices(filter_region=None, filter_instance_type=N
 		"regions" : result_regions
 	}
 
-	data = _load_data(INSTANCES_ON_DEMAND_URL)
-	if "config" in data and data["config"] and "regions" in data["config"] and data["config"]["regions"]:
-		for r in data["config"]["regions"]:
-			if "region" in r and r["region"]:
-				region_name = JSON_NAME_TO_ELC_REGIONS_API[r["region"]]
-				if get_specific_region and filter_region != region_name:
-					continue
-				instance_types = []
-				if "types" in r:
-					for it in r["types"]:
-						instance_class = it["name"]
-						if "tiers" in it:
-							for s in it["tiers"]:
-								_type = INSTANCE_TYPE_MAPPING[instance_class + "." + s["name"] ]
-
-								if get_specific_instance_type and _type != filter_instance_type:
-									continue
-								
-								price = None
-								try:
-									price = float(re.sub("[^0-9\\.]", "", s["prices"][currency]))
-								except ValueError:
+	for u in urls:
+		data = _load_data(u)
+		if "config" in data and data["config"] and "regions" in data["config"] and data["config"]["regions"]:
+			for r in data["config"]["regions"]:
+				if "region" in r and r["region"]:
+					region_name = JSON_NAME_TO_ELC_REGIONS_API[r["region"]]
+					if get_specific_region and filter_region != region_name:
+						continue
+					instance_types = []
+					if "types" in r:
+						for it in r["types"]:
+							if "tiers" in it:
+								for s in it["tiers"]:
+									_type = s["name"]
+	
+									if get_specific_instance_type and _type != filter_instance_type:
+										continue
+									
 									price = None
+									try:
+										price = float(re.sub("[^0-9\\.]", "", s["prices"][currency]))
+									except ValueError:
+										price = None
+	
+									instance_types.append({
+										"type" : _type,
+										"price" : price
+									})
+	
+						result_regions.append({
+							"region" : region_name,
+							"instanceTypes" : instance_types
+						})	
+	return result
 
-								instance_types.append({
-									"type" : _type,
-									"price" : price
-								})
-
-					result_regions.append({
-						"region" : region_name,
-						"instanceTypes" : instance_types
-					})
-
-		return result
-
-	return None
 
 if __name__ == "__main__":
 	def none_as_string(v):
