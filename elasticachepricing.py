@@ -39,6 +39,7 @@ ELC_REGIONS = [
 	"ap-southeast-1",
 	"ap-southeast-2",
 	"ap-northeast-1",
+	"ap-northeast-2",
 	"sa-east-1"
 ]
 
@@ -80,6 +81,7 @@ JSON_NAME_TO_ELC_REGIONS_API = {
 	"apac-syd" : "ap-southeast-2",
 	"apac-tokyo" : "ap-northeast-1",
 	"ap-northeast-1" : "ap-northeast-1",
+	"ap-northeast-2" : "ap-northeast-2",
 	"sa-east-1" : "sa-east-1"
 }
 
