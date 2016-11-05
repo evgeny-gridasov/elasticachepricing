@@ -31,11 +31,13 @@ except ImportError:
 
 ELC_REGIONS = [
 	"us-east-1",
+	"us-east-2",
 	"us-west-1",
 	"us-gov-west-1",
 	"us-west-2",
 	"eu-west-1",
 	"eu-central-1",
+	"ap-south-1",
 	"ap-southeast-1",
 	"ap-southeast-2",
 	"ap-northeast-1",
@@ -45,6 +47,9 @@ ELC_REGIONS = [
 
 ELC_INSTANCE_TYPES = [
 	"cache.t1.micro",
+	"cache.t2.micro",
+	"cache.t2.small",
+	"cache.t2.medium",
 	"cache.m1.small",
 	"cache.m1.medium",
 	"cache.m1.large",
@@ -57,6 +62,11 @@ ELC_INSTANCE_TYPES = [
 	"cache.m3.large",
 	"cache.m3.xlarge",
 	"cache.m3.2xlarge",
+	"cache.m4.large",
+	"cache.m4.xlarge",
+	"cache.m4.2xlarge",
+	"cache.m4.4xlarge",
+	"cache.m4.10xlarge",
 	"cache.r3.large",
 	"cache.r3.xlarge",
 	"cache.r3.2xlarge",
@@ -67,6 +77,7 @@ ELC_INSTANCE_TYPES = [
 JSON_NAME_TO_ELC_REGIONS_API = {
 	"us-east" : "us-east-1",
 	"us-east-1" : "us-east-1",
+	"us-east-2" : "us-east-2",
 	"us-west" : "us-west-1",
 	"us-west-1" : "us-west-1",
 	"us-gov-west-1" : "us-gov-west-1",
@@ -76,6 +87,7 @@ JSON_NAME_TO_ELC_REGIONS_API = {
 	"eu-frankfurt-1" : "eu-central-1",
 	"eu-central-1" : "eu-central-1",
 	"apac-sin" : "ap-southeast-1",
+	"ap-south-1" : "ap-south-1",
 	"ap-southeast-1" : "ap-southeast-1",
 	"ap-southeast-2" : "ap-southeast-2",
 	"apac-syd" : "ap-southeast-2",
